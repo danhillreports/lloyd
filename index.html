@@ -9,13 +9,15 @@
             padding:0;
             margin:0;
             overflow:hidden;
-            font-family:georgia;
-            text-align:center;
+            font-family:sans-serif;
         }
-        h1 { }
-        a { color:skyblue }
 
-        #info { position:absolute; top:0px; width: 100%; text-align:center; }
+        #info {
+            position:absolute;
+            top:0px;
+            background-color: rgba(237,237,237,0.5);
+            padding:5px;
+        }
         .button { background:#000; color:#fff; padding:0.2em 0.5em; cursor:pointer }
         .inactive { background:#999; color:#eee }
     </style>
@@ -25,9 +27,11 @@
 
 <div id="container"></div>
 <div id="info">
-    <span id="lloyd-button" class="button inactive">Carli Lloyd</span>
-    <span id="kaihori-button" class="button">Ayumi Kaihori</span>
-    <br/>
+
+    <form id="cam-form">
+        <input type="radio" name="cam" value="lloyd" checked=true>Carli Lloyd</input>
+        <input type="radio" name="cam" value="kaihori">Ayumi Kaihori</input>
+    </form>
 
     <p>
         BC Place model by <a href="https://3dwarehouse.sketchup.com/model.html?id=d4db1be182f529b113b269e7369c632c">Craig Ian S.</a>
@@ -65,31 +69,26 @@
     var render_canvas = 1, render_gl = 1;
     var has_gl = 0;
 
-    var lloydButton = document.getElementById( "lloyd-button" );
-    var kaihoriButton = document.getElementById( "kaihori-button" );
-
     init();
     animate();
 
     render_canvas = !has_gl;
-    kaihoriButton.style.display = has_gl ? "inline" : "none";
-    lloydButton.className = render_canvas ? "button" : "button inactive";
 
-    kaihoriButton.addEventListener("click", function() {
-        TweenLite.to(camera.position, 2, {
-            x:5401.833315670357,
-            y:45.239238108226225,
-            z:-932.3464009300045
-        });
-    }, false);
-
-    lloydButton.addEventListener("click", function() {
-        TweenLite.to(camera.position, 2, {
-            x:-450,
-            y:0,
-            z:126
-        });
-    }, false);
+    document.getElementById("cam-form").addEventListener("change", function(e) {
+        if (e.target.value === "lloyd") {
+            TweenLite.to(camera.position, 2, {
+                x:-450,
+                y:0,
+                z:126
+            });
+        } else if (e.target.value === "kaihori") {
+            TweenLite.to(camera.position, 2, {
+                x:5401.833315670357,
+                y:45.239238108226225,
+                z:-932.3464009300045
+            });
+        }
+    });
 
     function init() {
 
