@@ -25,16 +25,15 @@
 
 <div id="container"></div>
 <div id="info">
-            <h1>BMO</h1>
+    <span id="lloyd-button" class="button inactive">Carli Lloyd</span>
+    <span id="kaihori-button" class="button">Ayumi Kaihori</span>
+    <br/>
 
-            <span id="rcanvas" class="button inactive">2d canvas renderer</span>
-            <span id="rwebgl" class="button">WebGL renderer</span>
-            <br/>
-
-            <p>
-                BC Place model by <a href="https://3dwarehouse.sketchup.com/model.html?id=d4db1be182f529b113b269e7369c632c">Craig Ian S.</a>
-                People models by <a href="https://3dwarehouse.sketchup.com/model.html?id=a5ea7b0aa599ebba238769fe9f52fdf2">Bill E.</a></p>
-        </div>
+    <p>
+        BC Place model by <a href="https://3dwarehouse.sketchup.com/model.html?id=d4db1be182f529b113b269e7369c632c">Craig Ian S.</a>
+        People models by <a href="https://3dwarehouse.sketchup.com/model.html?id=a5ea7b0aa599ebba238769fe9f52fdf2">Bill E.</a>
+    </p>
+</div>
 
 <script src="js/three.min.js"></script>
 <script src="js/DDSLoader.js"></script>
@@ -42,6 +41,8 @@
 <script src="js/CanvasRenderer.js"></script>
 
 <script src="js/Detector.js"></script>
+
+<script src="js/TweenLite.min.js"></script>
 
 <script>
 
@@ -64,15 +65,31 @@
     var render_canvas = 1, render_gl = 1;
     var has_gl = 0;
 
-    var bcanvas = document.getElementById( "rcanvas" );
-    var bwebgl = document.getElementById( "rwebgl" );
+    var lloydButton = document.getElementById( "lloyd-button" );
+    var kaihoriButton = document.getElementById( "kaihori-button" );
 
     init();
     animate();
 
     render_canvas = !has_gl;
-    bwebgl.style.display = has_gl ? "inline" : "none";
-    bcanvas.className = render_canvas ? "button" : "button inactive";
+    kaihoriButton.style.display = has_gl ? "inline" : "none";
+    lloydButton.className = render_canvas ? "button" : "button inactive";
+
+    kaihoriButton.addEventListener("click", function() {
+        TweenLite.to(camera.position, 2, {
+            x:5401.833315670357,
+            y:45.239238108226225,
+            z:-932.3464009300045
+        });
+    }, false);
+
+    lloydButton.addEventListener("click", function() {
+        TweenLite.to(camera.position, 2, {
+            x:-450,
+            y:0,
+            z:126
+        });
+    }, false);
 
     function init() {
 
