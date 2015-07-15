@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+        body {
+            background:#fff;
+            padding:0;
+            margin:0;
+            overflow:hidden;
+            font-family:georgia;
+            text-align:center;
+        }
+        h1 { }
+        a { color:skyblue }
+
+        #info { position:absolute; top:0px; width: 100%; text-align:center; }
+        .button { background:#000; color:#fff; padding:0.2em 0.5em; cursor:pointer }
+        .inactive { background:#999; color:#eee }
+    </style>
+    <title>Lloyd</title>
+</head>
+<body>
+
+<div id="container"></div>
+<div id="info">
+            <h1>BMO</h1>
+
+            <span id="rcanvas" class="button inactive">2d canvas renderer</span>
+            <span id="rwebgl" class="button">WebGL renderer</span>
+            <br/>
+
+            <p>
+                BC Place model by <a href="https://3dwarehouse.sketchup.com/model.html?id=d4db1be182f529b113b269e7369c632c">Craig Ian S.</a>
+                People models by <a href="https://3dwarehouse.sketchup.com/model.html?id=a5ea7b0aa599ebba238769fe9f52fdf2">Bill E.</a></p>
+        </div>
+
+<script src="js/three.min.js"></script>
+<script src="js/DDSLoader.js"></script>
+<script src="js/Projector.js"></script>
+<script src="js/CanvasRenderer.js"></script>
+
+<script src="js/Detector.js"></script>
+
+<script>
+
+    var SCREEN_WIDTH = window.innerWidth;
+    var SCREEN_HEIGHT = window.innerHeight;
+    var FLOOR = -10;
+
+    var container;
+
+    var camera, scene;
+    var canvasRenderer, webglRenderer;
+
+    var mesh, zmesh, geometry;
+
+    var mouseX = 0, mouseY = 0;
+
+    var windowHalfX = window.innerWidth / 2;
+    var windowHalfY = window.innerHeight / 2;
+
+    var render_canvas = 1, render_gl = 1;
+    var has_gl = 0;
+
+    var bcanvas = document.getElementById( "rcanvas" );
+    var bwebgl = document.getElementById( "rwebgl" );
+
+    init();
+    animate();
+
+    render_canvas = !has_gl;
+    bwebgl.style.display = has_gl ? "inline" : "none";
+    bcanvas.className = render_canvas ? "button" : "button inactive";
+
+    function init() {
+
+        container = document.getElementById( 'container' );
+
+        camera = new THREE.PerspectiveCamera( 45, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 20000 );
+        camera.position.set(-450, 0, 126);
+        // camera.position.set(5401.833315670357, 45.239238108226225, -932.3464009300045);
+
+        scene = new THREE.Scene();
+
+        // LIGHTS
+
+        var ambient = new THREE.AmbientLight( 0x606060 );
+        scene.add( ambient );
+
+        var directionalLight = new THREE.DirectionalLight( 0x606060, 1.5 );
+        directionalLight.position.set( -6338, 12877, 2934 ).normalize();
+        scene.add( directionalLight );
+
+        var secondLight = new THREE.DirectionalLight( 0x606060, 0.5 );
+        secondLight.position.set( -193.91413163158387, -58.47334719885917, -2.67903358126111 ).normalize();
+        scene.add( secondLight );
+
+        // RENDERER
+
+        if ( render_gl ) {
+
+            try {
+
+                webglRenderer = new THREE.WebGLRenderer();
+                webglRenderer.setClearColor( 0xffffff );
+                webglRenderer.setPixelRatio( window.devicePixelRatio );
+                webglRenderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
+                webglRenderer.domElement.style.position = "relative";
+
+                container.appendChild( webglRenderer.domElement );
+
+                has_gl = 1;
+
+            }
+            catch (e) {
+            }
+
+        }
+
+        if ( render_canvas ) {
+
+            canvasRenderer = new THREE.CanvasRenderer();
+            canvasRenderer.setClearColor( 0xffffff );
+            canvasRenderer.setPixelRatio( window.devicePixelRatio );
+            canvasRenderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
+            container.appendChild( canvasRenderer.domElement );
+
+        }
+
+        THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
+
+        var loader = new THREE.JSONLoader();
+        var callbackLloyd = function ( geometry, materials ) { createScene( geometry, materials, 0, FLOOR, -275 ) };
+
+        loader.load( "js/lloyd.js", callbackLloyd );
+
+        window.addEventListener( 'resize', onWindowResize, false );
+
+    }
+
+    function onWindowResize() {
+
+        windowHalfX = window.innerWidth / 2;
+        windowHalfY = window.innerHeight / 2;
+
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+
+        if ( webglRenderer ) webglRenderer.setSize( window.innerWidth, window.innerHeight );
+        if ( canvasRenderer ) canvasRenderer.setSize( window.innerWidth, window.innerHeight );
+
+    }
+
+    function createScene( geometry, materials, x, y, z ) {
+
+        zmesh = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
+        zmesh.position.set( x, y, z );
+        zmesh.scale.set( 3, 3, 3 );
+        scene.add( zmesh );
+
+    }
+
+    function animate() {
+
+        requestAnimationFrame( animate );
+
+        render();
+
+    }
+
+    function render() {
+
+        camera.lookAt( scene.position );
+
+        if ( render_gl && has_gl ) webglRenderer.render( scene, camera );
+        if ( render_canvas ) canvasRenderer.render( scene, camera );
+
+    }
+</script>
+
+</body>
+</html>
